@@ -22,15 +22,27 @@ void clear_screen() {
 }
 
 void animate_dice_roll(int result) {
-  int temp;
-  for (int i = 0; i < 10; i++) {
-    temp = (rand() % 6) + 1;
-    printf(YELLOW "\r⚄ Lancement du dé: %d " RESET, temp);
+  char *dice_faces[] = {"⚀", "⚁", "⚂", "⚃", "⚄", "⚅"};
+  char *colors[] = {RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN};
+  
+  printf(BOLD "\nRolling the dice " RESET);
+  for (int i = 0; i < 3; i++) {
+    printf(".");
     fflush(stdout);
-    usleep(100000); 
+    usleep(200000);
   }
-  printf(BOLD YELLOW "\r⚄ Résultat du dé: %d " RESET, result);
   printf("\n");
+  
+  for (int i = 0; i < 8; i++) {
+    int temp = (rand() % 6);
+    printf("%s\r%s %s" RESET, colors[i % 6], dice_faces[temp], i % 2 == 0 ? "      " : "...   ");
+    fflush(stdout);
+    usleep(150000); 
+  }
+  
+  printf(BOLD YELLOW "\r%s Result: %d " RESET, dice_faces[result-1], result);
+  printf("\n");
+  fflush(stdout);
 }
 
 void display_progress_bar(int points, int max_points, char *color) {
@@ -62,26 +74,70 @@ void display_title() {
 }
 
 void display_scoreboard(struct Player *players, int num_players) {
-  printf(BOLD BLUE "\n╔═══════════════════ TABLEAU DES SCORES ═══════════════════╗\n" RESET);
+  clear_screen();
+  printf(BOLD BLUE "\n╔═══════════════════ SCOREBOARD ═══════════════════╗\n" RESET);
+  fflush(stdout);
+  
+  struct Player sorted_players[num_players];
   for (int i = 0; i < num_players; i++) {
-    printf(BLUE "║ " RESET);
-    printf("%s%-15s%s : ", players[i].color, players[i].name, RESET);
-    printf("%3d points ", players[i].bank);
-    printf(BLUE "║\n" RESET);
+    sorted_players[i] = players[i];
   }
+  
+  for (int i = 0; i < num_players - 1; i++) {
+    for (int j = 0; j < num_players - i - 1; j++) {
+      if (sorted_players[j].bank < sorted_players[j+1].bank) {
+        struct Player temp = sorted_players[j];
+        sorted_players[j] = sorted_players[j+1];
+        sorted_players[j+1] = temp;
+      }
+    }
+  }
+  
+  for (int i = 0; i < num_players; i++) {
+    usleep(300000);
+    printf(BLUE "║ " RESET);
+    
+    char *rank_marker = "";
+    if (i == 0) rank_marker = BOLD YELLOW "🥇 " RESET;
+    else if (i == 1) rank_marker = BOLD WHITE "🥈 " RESET;
+    else if (i == 2) rank_marker = BOLD RED "🥉 " RESET;
+    
+    printf("%s%s%-15s%s : ", rank_marker, sorted_players[i].color, sorted_players[i].name, RESET);
+    printf("%3d points ", sorted_players[i].bank);
+    printf(BLUE "║\n" RESET);
+    fflush(stdout);
+  }
+  
   printf(BOLD BLUE "╚═════════════════════════════════════════════════════════╝\n\n" RESET);
+  fflush(stdout);
+  usleep(500000);
 }
 
 void celebrate_winner(char *name, char *color, int score) {
   clear_screen();
-  printf("%s\n", color);
-  printf("  🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 \n");
-  printf("  🎊                                       🎊 \n");
-  printf("  🎉       FÉLICITATIONS %-15s    🎉 \n", name);
-  printf("  🎊       VOUS AVEZ GAGNÉ AVEC %3d POINTS!  🎊 \n", score);
-  printf("  🎉                                       🎉 \n");
-  printf("  🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 \n");
-  printf(RESET);
+  
+  for (int frame = 0; frame < 3; frame++) {
+    clear_screen();
+    printf("%s\n", color);
+    if (frame == 0 || frame == 2) {
+      printf("  🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 \n");
+      printf("  🎊                                       🎊 \n");
+      printf("  🎉       CONGRATULATIONS %-15s    🎉 \n", name);
+      printf("  🎊       YOU WON WITH %3d POINTS!       🎊 \n", score);
+      printf("  🎉                                       🎉 \n");
+      printf("  🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 🎊 🎉 \n");
+    } else {
+      printf("  ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ \n");
+      printf("  ⭐                                       ⭐ \n");
+      printf("  ✨       CONGRATULATIONS %-15s    ✨ \n", name);
+      printf("  ⭐       YOU WON WITH %3d POINTS!       ⭐ \n", score);
+      printf("  ✨                                       ✨ \n");
+      printf("  ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ \n");
+    }
+    printf(RESET);
+    fflush(stdout);
+    usleep(500000);
+  }
 
   for (int i = 0; i < 5; i++) {
     printf("\r🎲 ");
@@ -92,4 +148,5 @@ void celebrate_winner(char *name, char *color, int score) {
     usleep(300000);
   }
   printf("\n\n");
+  fflush(stdout);
 }

@@ -17,9 +17,7 @@ struct Player {
 struct Game;
 
 char play_human(void);
-char play_random_bot(struct Player *p, struct Game *g);
-char play_medium_bot(struct Player *p, struct Game *g);
-char play_hard_bot(struct Player *p, struct Game *g);
-
+char play_random_bot(struct Player *p);
+char play_medium_bot(struct Player *p);
 
 #endif
