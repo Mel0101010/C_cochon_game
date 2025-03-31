@@ -29,7 +29,7 @@ void animate_dice_roll(int result) {
   for (int i = 0; i < 3; i++) {
     printf(".");
     fflush(stdout);
-    usleep(200000);
+    usleep(100000);  // Réduit de 200000 à 100000 (0.1 seconde)
   }
   printf("\n");
   
@@ -37,7 +37,7 @@ void animate_dice_roll(int result) {
     int temp = (rand() % 6);
     printf("%s\r%s %s" RESET, colors[i % 6], dice_faces[temp], i % 2 == 0 ? "      " : "...   ");
     fflush(stdout);
-    usleep(150000); 
+    usleep(75000);   // Réduit de 150000 à 75000 (0.075 seconde)
   }
   
   printf(BOLD YELLOW "\r%s Result: %d " RESET, dice_faces[result-1], result);
